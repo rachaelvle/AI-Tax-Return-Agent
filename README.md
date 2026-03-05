@@ -6,21 +6,19 @@ A Flask-powered prototype of an AI agent that automates federal tax return prepa
 
 ```
 AI-Tax-Return-Agent/
-├── app.py                    ← Flask routes, form handling, input sanitization
-├── requirements.txt          ← Dependencies (Flask, ReportLab)
+├── app.py                    ← Flask routes, input sanitization (safe_float, safe_str)
+├── requirements.txt          ← Dependencies
 ├── templates/
 │   ├── index.html            ← Multi-step intake form (5 steps)
-│   └── results.html          ← Tax breakdown results page
+│   └── results.html          ← Tax breakdown and pdf viewing/downloading
 ├── static/
 │   ├── css/style.css         ← Full responsive stylesheet
-│   └── js/validation.js      ← Client-side form validation
-└── utils/
-    ├── tax_engine.py         ← 2025 federal tax calculation engine
-    └── pdf_generator.py      ← Mock Form 1040 PDF builder (ReportLab)
-|
-├── tests/
-│   ├── index.html            ← test cases and math to show correctness
-└── 
+│   └── js/validation.js      ← Client-side form validation + app state / UI logic
+├── utils/
+│   ├── tax_engine.py         ← 2025 federal tax calculation engine
+│   └── pdf_generator.py      ← Mock Form 1040 PDF builder (ReportLab)
+└── tests/
+    └── test_tax_engine.py          ← Test cases verifying calculation correctness
 ```
 
 ## Setup & Run
@@ -47,6 +45,7 @@ Browser (HTML/CSS/JS)
     │
     │  GET /           → Welcome + 5-step form
     │  POST /submit    → Form data
+    │  POST /api/calculate → JSON summary preview
     ▼
 Flask (app.py)
     │
@@ -57,12 +56,14 @@ Flask (app.py)
     │
     ├─ Session storage (Flask session, no database)
     │
-    └─ Jinja2 templates (results.html) + PDF (utils/pdf_generator.py)
-              │
-              ▼
-    GET /results      → Rendered results page
-    GET /download-pdf → PDF file download
-    GET /view-pdf     → PDF inline browser view
+    ├─ Jinja2 templates (results.html) + PDF (utils/pdf_generator.py)
+    │         │
+    │         ▼
+    │   GET /results      → Rendered results page
+    │   GET /download-pdf → PDF file download
+    │   GET /view-pdf     → PDF inline browser view
+    │
+    └─ 
 ```
 
 ---
@@ -72,7 +73,7 @@ Flask (app.py)
 1. **User fills 5-step form** in the browser (filing status → income → deductions → credits → review)
 2. **Client-side validation** (`validation.js`) checks each step before advancing
 3. **"Submit Return"** POSTs all field values as a hidden HTML form to `POST /submit`
-4. **Server sanitizes** every input: floats are clamped `[0, $100M]`, strings are allowlist-validated, HTML is escaped
+4. **Server sanitizes** every input: floats are clamped `[0, $999,999,999]`, strings are allowlist-validated, HTML is escaped
 5. **`calculate_tax()`** runs the full calculation pipeline and returns an intermediate-value dict
 6. **Result stored** in the Flask session (encrypted cookie; no database)
 7. **Browser redirected** to `GET /results` — Jinja2 renders the breakdown using session data
@@ -98,11 +99,30 @@ Flask (app.py)
 
 **2025 tax brackets** (single): 10% → $11,925 · 12% → $48,475 · 22% → $103,350 · 24% → $197,300 · 32% → $250,525 · 35% → $626,350 · 37%+
 
+---
+
+## Validation Architecture
+
+There are two **complementary** validation layers — they cannot replace each other:
+
+| Layer | Where | Purpose |
+|---|---|---|
+| `validation.js` | Browser (client-side) | UX — immediate per-step feedback; prevents most invalid submissions |
+| `safe_float` / `safe_str` | `app.py` (server-side) | Security — sanitizes every input before it touches the tax engine, regardless of how the request was made |
+
+**`safe_float(value, default, min_val, max_val)`** — parses a float, clamps to `[0, $999,999,999]`, rounds to cents, returns `default` on any error.
+
+**`safe_str(value, allowed_values, default)`** — HTML-escapes the string and rejects it if it isn't in the allowlist.
+
+`validation.js` uses a single `numVal(id)` helper (returns a parsed float or 0) for both step validators and the summary preview payload — no duplication.
+
+---
+
 ## Security
 
 | Measure | Implementation |
 |---|---|
-| Input sanitization | `safe_float()` clamps to `[0, 100_000_000]`; `safe_str()` HTML-escapes all strings |
+| Input sanitization | `safe_float()` clamps to `[0, 999_999_999]`; `safe_str()` HTML-escapes all strings |
 | Allowlist validation | Filing status, deduction method, and credit types checked against fixed sets |
 | Server-side enforcement | All caps (SALT $10k, IRA $23.5k, etc.) applied server-side regardless of client input |
 | Session storage | No database; data lives in an encrypted Flask session cookie for one browser session |
@@ -113,6 +133,7 @@ Flask (app.py)
 - Enable HTTPS (TLS termination at reverse proxy)
 - Add CSRF token protection
 - Implement rate limiting on `POST /submit`
+---
 
 ## Compliance Considerations (Production)
 
@@ -126,6 +147,8 @@ A real-world tax filing system would require:
 - **PII minimization** — This prototype stores no PII; production must handle SSNs, addresses, bank info securely
 
 This prototype intentionally omits all of the above and is scoped to educational demonstration only.
+
+---
 
 ## User Flow
 
@@ -143,10 +166,36 @@ Step 4 — Credits & Dependents + estimated payments
 Step 5 — Summary & Review
     ↓  Submit Return ↗  (POST /submit)
 Results Page — Full breakdown: income → AGI → taxable income → tax → credits → refund/due
+    ├─  AI explanation (streamed from /api/explain)
     ├─  Download Form 1040 PDF
     ├─  View PDF inline
     └─  Start New Return
 ```
 
-# Challenges 
-- There was a bug in how self employment tax was calculated and how the child tax credit applied. 
+---
+
+## Known Issues / Challenges
+
+- Fixed: self-employment tax calculation was double-counting the SE deduction
+- Fixed: Child Tax Credit was applying even when dependents = 0
+- There was a lot of duplicate code, had to clean up and refactor the code into clear seperate files 
+
+---
+
+## Limitations: 
+Simplified Tax Rules - simplified tax calculations and only includes a limited set of income types, deductions, and credits
+
+No Direct Integration with Government Systems - The system currently generates a mock tax form but does not directly communicate with the Internal Revenue Service.
+
+Security and Privacy Not Fully Implemented - Because this is a prototype, it likely does not yet include full security protections such as encryption, identity verification, or secure storage of sensitive financial data.
+
+## Possible Improvements:
+Expand Tax Rule Coverage - The system could be improved by incorporating more complete tax logic
+
+Integrate with IRS E-Filing Systems - Future versions could connect to the IRS Modernized e-File system used by the Internal Revenue Service, allowing the software to electronically submit tax returns and receive confirmation or rejection messages.
+
+Improve the User Interface - The UI could be expanded with explanations of tax rules. 
+
+Add AI Assistance - Since the project focuses on automation, AI could be used to help users categorize income, recommend deductions or credits, and answer tax-related questions during the filing process. (Chat bot input instead)
+
+Strengthen Security and Data Protection - Future improvements should include encrypted data storage, secure authentication (such as multi-factor authentication), and compliance with privacy regulations to protect sensitive user information.

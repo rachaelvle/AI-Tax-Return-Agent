@@ -421,8 +421,6 @@ function fmt(n) {
   return '$' + (parseFloat(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function val(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
-
 function toggleCheck(el) {
   el.classList.toggle('checked');
   el.querySelector('input').checked = el.classList.contains('checked');
@@ -471,26 +469,26 @@ async function buildSummary() {
 
   const payload = {
     filing:            document.querySelector('input[name="filing"]:checked')?.value || 'single',
-    wages:             val('wages'),
-    selfEmploy:        val('selfEmploy'),
-    capitalGains:      val('capitalGains'),
-    rental:            val('rental'),
-    dividend:          val('dividend'),
-    unemployment:      val('unemployment'),
-    otherIncome:       val('otherIncome'),
-    withheld:          val('withheld'),
+    wages:             numVal('wages'),
+    selfEmploy:        numVal('selfEmploy'),
+    capitalGains:      numVal('capitalGains'),
+    rental:            numVal('rental'),
+    dividend:          numVal('dividend'),
+    unemployment:      numVal('unemployment'),
+    otherIncome:       numVal('otherIncome'),
+    withheld:          numVal('withheld'),
     deductionMethod:   document.getElementById('deductionMethod').value,
-    mortgage:          val('mortgage'),
-    salt:              val('salt'),
-    charity:           val('charity'),
-    medical:           val('medical'),
-    otherDeductions:   val('otherDeductions'),
-    studentLoan:       val('studentLoan'),
-    ira:               val('ira'),
-    hsa:               val('hsa'),
+    mortgage:          numVal('mortgage'),
+    salt:              numVal('salt'),
+    charity:           numVal('charity'),
+    medical:           numVal('medical'),
+    otherDeductions:   numVal('otherDeductions'),
+    studentLoan:       numVal('studentLoan'),
+    ira:               numVal('ira'),
+    hsa:               numVal('hsa'),
     credits:           [...document.querySelectorAll('#creditsGrid input:checked')].map(c => c.value),
     dependents:        parseInt(document.getElementById('dependents').value || '0'),
-    estimatedPayments: val('estimatedPayments'),
+    estimatedPayments: numVal('estimatedPayments'),
   };
 
   const resp = await fetch('/api/calculate', {
