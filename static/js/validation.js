@@ -467,7 +467,6 @@ function prev() {
 async function buildSummary() {
   document.getElementById('summaryContent').innerHTML =
     '<div style="padding:1rem;color:#888;font-family:var(--mono,monospace);font-size:0.85rem;">Calculating…</div>';
-  document.getElementById('resultBox').innerHTML = '';
 
   const payload = {
     filing:            document.querySelector('input[name="filing"]:checked')?.value || 'single',
@@ -516,27 +515,9 @@ async function buildSummary() {
       <h3>Deductions & Taxable Income</h3>
       <div class="summary-row"><span class="lbl">${r.deduction_label} Deduction</span><span class="val">− ${fmt(r.deduction_used)}</span></div>
       <div class="summary-row"><span class="lbl">Taxable Income</span><span class="val">${fmt(r.taxable_income)}</span></div>
-    </div>
-    <div class="summary-section">
-      <h3>Tax & Payments</h3>
-      <div class="summary-row"><span class="lbl">Estimated Tax Owed</span><span class="val">${fmt(r.total_tax_liability)}</span></div>
-      <div class="summary-row"><span class="lbl">Tax Credits Applied</span><span class="val">− ${fmt(r.total_credits)}</span></div>
-      <div class="summary-row"><span class="lbl">Taxes Withheld / Paid</span><span class="val">− ${fmt(r.total_payments)}</span></div>
-    </div>
-    <div class="summary-total">
-      <span class="lbl">${r.is_refund ? 'Estimated Refund' : 'Balance Due'}</span>
-      <span class="val ${r.is_refund ? '' : 'result-negative'}">${fmt(Math.abs(r.refund_or_owed))}</span>
     </div>`;
 
   document.getElementById('summaryContent').innerHTML = html;
-
-  const rbHtml = `
-    <div class="result-box" style="margin-top:1.5rem">
-      <div class="result-label">${r.is_refund ? 'You are owed a refund of' : 'You owe an additional'}</div>
-      <div class="result-amount ${r.is_refund ? 'result-positive' : 'result-negative'}">${fmt(Math.abs(r.refund_or_owed))}</div>
-      <div class="result-type">${r.is_refund ? 'Estimated federal refund' : 'Balance due to IRS'} · FY2025</div>
-    </div>`;
-  document.getElementById('resultBox').innerHTML = rbHtml;
 }
 
 // ─── Form submission ──────────────────────────────────────────────────────────
