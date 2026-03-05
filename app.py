@@ -14,7 +14,7 @@ app.secret_key = "tax-agent-2025-secret-key-change-in-prod"
 
 # ── Sanitization helper ──────────────────────────────────────────────────────
 
-def safe_float(value, default=0.0, min_val=0.0, max_val=100_000_000.0):
+def safe_float(value, default=0.0, min_val=0.0, max_val=999_999_999.0):
     """Parse a form float safely; clamp to [min_val, max_val]."""
     try:
         v = float(str(value).strip())

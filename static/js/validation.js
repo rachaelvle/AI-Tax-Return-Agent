@@ -153,14 +153,14 @@ function validateStep1() {
     }
   }
 
-  // Cap on unrealistic single income entries (>$100M triggers a warning, not a block)
+  // Cap on unrealistic single income entries (>$999,999,999 triggers a warning, not a block)
   incomeIds.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     const v = parseFloat(el.value);
-    if (!isNaN(v) && v > 100_000_000) {
-      showError(closest(el, '.field'), 'This figure looks unusually high. Please verify the amount.');
-      // Warn only — do not set valid = false
+    if (!isNaN(v) && v > 999_999_999) {
+      showError(closest(el, '.field'), 'Amount exceeds the maximum of $999,999,999. Please verify.');
+      valid = false;
     }
   });
 
@@ -329,8 +329,9 @@ function validateStep3() {
       showError(closest(estEl, '.field'), 'Estimated payments cannot be negative.');
       valid = false;
     }
-    if (!isNaN(est) && est > 1_000_000) {
-      showError(closest(estEl, '.field'), 'This figure looks unusually high. Please verify the amount.');
+    if (!isNaN(est) && est > 999_999_999) {
+      showError(closest(estEl, '.field'), 'Amount exceeds the maximum of $999,999,999. Please verify.');
+      valid = false;
     }
   }
 

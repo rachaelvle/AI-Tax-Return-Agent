@@ -2,8 +2,6 @@
 
 A Flask-powered prototype of an AI agent that automates federal tax return preparation: collecting user input, running progressive tax calculations, and generating a mock Form 1040 PDF.
 
----
-
 ## Project Structure
 
 ```
@@ -19,9 +17,11 @@ AI-Tax-Return-Agent/
 └── utils/
     ├── tax_engine.py         ← 2025 federal tax calculation engine
     └── pdf_generator.py      ← Mock Form 1040 PDF builder (ReportLab)
+|
+├── tests/
+│   ├── index.html            ← test cases and math to show correctness
+└── 
 ```
-
----
 
 ## Setup & Run
 
@@ -98,19 +98,6 @@ Flask (app.py)
 
 **2025 tax brackets** (single): 10% → $11,925 · 12% → $48,475 · 22% → $103,350 · 24% → $197,300 · 32% → $250,525 · 35% → $626,350 · 37%+
 
----
-
-## Sample Test Scenarios
-
-| Scenario | Wages | SE Income | Withheld | Expected Result |
-|---|---|---|---|---|
-| Single, W-2 only | $50,000 | $0 | $7,000 | ~$1,200 refund |
-| Single, W-2 + SE (sample data) | $72,000 | $15,000 | $12,500 | ~$2,000 refund |
-| MFJ, high income | $180,000 | $0 | $30,000 | ~$2,000 balance due |
-| Single, low income + EITC | $22,000 | $0 | $2,200 | Refund (EITC applied) |
-
----
-
 ## Security
 
 | Measure | Implementation |
@@ -127,8 +114,6 @@ Flask (app.py)
 - Add CSRF token protection
 - Implement rate limiting on `POST /submit`
 
----
-
 ## Compliance Considerations (Production)
 
 A real-world tax filing system would require:
@@ -141,8 +126,6 @@ A real-world tax filing system would require:
 - **PII minimization** — This prototype stores no PII; production must handle SSNs, addresses, bank info securely
 
 This prototype intentionally omits all of the above and is scoped to educational demonstration only.
-
----
 
 ## User Flow
 
@@ -164,3 +147,6 @@ Results Page — Full breakdown: income → AGI → taxable income → tax → c
     ├─  View PDF inline
     └─  Start New Return
 ```
+
+# Challenges 
+- There was a bug in how self employment tax was calculated and how the child tax credit applied. 

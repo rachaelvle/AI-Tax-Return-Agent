@@ -82,7 +82,7 @@ CREDIT_AMOUNTS = {
 }
 
 # ── Self-employment tax rate ─────────────────────────────────────────────────
-SE_TAX_RATE = 0.1413   # 15.3% x 0.9235 net earnings factor, halved for deduction
+SE_TAX_RATE = 0.1413   # 15.3% × 0.9235 net earnings factor = effective rate on gross SE income
 
 
 def _calc_bracket_tax(taxable_income: float, status: str) -> float:
@@ -138,7 +138,7 @@ def calculate_tax(
 
     # ── 2. Self-employment tax (half is above-the-line deductible) ───────────
     se_income = income.get("selfEmploy", 0.0)
-    se_tax = round(se_income * SE_TAX_RATE * 2, 2) if se_income > 0 else 0.0
+    se_tax = round(se_income * SE_TAX_RATE, 2) if se_income > 0 else 0.0
     se_deduction = round(se_tax / 2, 2)           # deductible half
 
     # ── 3. Above-the-line adjustments (AGI reductions) ───────────────────────
@@ -178,7 +178,7 @@ def calculate_tax(
     credit_detail = {}
     for credit in credits_selected:
         if credit == "childtax":
-            amount = CREDIT_AMOUNTS["childtax"] * max(dependents, 1)
+            amount = CREDIT_AMOUNTS["childtax"] * dependents
         else:
             amount = CREDIT_AMOUNTS.get(credit, 0)
         credit_detail[credit] = amount

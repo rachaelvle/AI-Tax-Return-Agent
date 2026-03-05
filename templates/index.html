@@ -132,20 +132,20 @@
           <label>W-2 Wages & Salaries</label>
           <div class="prefix-wrap">
             <span>$</span>
-            <input type="number" id="wages" placeholder="0.00" min="0" step="0.01">
+            <input type="number" id="wages" placeholder="0.00" min="0" max="999999999" step="0.01">
           </div>
         </div>
         <div class="field-row">
           <div class="field">
             <label>Self-Employment Income</label>
             <div class="prefix-wrap"><span>$</span>
-              <input type="number" id="selfEmploy" placeholder="0.00" min="0" step="0.01">
+              <input type="number" id="selfEmploy" placeholder="0.00" min="0" max="999999999" step="0.01">
             </div>
           </div>
           <div class="field">
             <label>Investment / Capital Gains</label>
             <div class="prefix-wrap"><span>$</span>
-              <input type="number" id="capitalGains" placeholder="0.00" min="0" step="0.01">
+              <input type="number" id="capitalGains" placeholder="0.00" min="0" max="999999999" step="0.01">
             </div>
           </div>
         </div>
@@ -153,13 +153,13 @@
           <div class="field">
             <label>Rental Income</label>
             <div class="prefix-wrap"><span>$</span>
-              <input type="number" id="rental" placeholder="0.00" min="0" step="0.01">
+              <input type="number" id="rental" placeholder="0.00" min="0" max="999999999" step="0.01">
             </div>
           </div>
           <div class="field">
             <label>Dividend / Interest Income</label>
             <div class="prefix-wrap"><span>$</span>
-              <input type="number" id="dividend" placeholder="0.00" min="0" step="0.01">
+              <input type="number" id="dividend" placeholder="0.00" min="0" max="999999999" step="0.01">
             </div>
           </div>
         </div>
@@ -167,20 +167,20 @@
           <div class="field">
             <label>Unemployment Benefits</label>
             <div class="prefix-wrap"><span>$</span>
-              <input type="number" id="unemployment" placeholder="0.00" min="0" step="0.01">
+              <input type="number" id="unemployment" placeholder="0.00" min="0" max="999999999" step="0.01">
             </div>
           </div>
           <div class="field">
             <label>Other Income</label>
             <div class="prefix-wrap"><span>$</span>
-              <input type="number" id="otherIncome" placeholder="0.00" min="0" step="0.01">
+              <input type="number" id="otherIncome" placeholder="0.00" min="0" max="999999999" step="0.01">
             </div>
           </div>
         </div>
         <div class="field">
           <label>Federal Tax Withheld (W-2 Box 2)</label>
           <div class="prefix-wrap"><span>$</span>
-            <input type="number" id="withheld" placeholder="0.00" min="0" step="0.01">
+            <input type="number" id="withheld" placeholder="0.00" min="0" max="999999999" step="0.01">
           </div>
           <span class="hint">Total federal income tax already withheld from paychecks</span>
         </div>
@@ -213,13 +213,13 @@
             <div class="field">
               <label>Mortgage Interest</label>
               <div class="prefix-wrap"><span>$</span>
-                <input type="number" id="mortgage" placeholder="0.00" min="0" step="0.01">
+                <input type="number" id="mortgage" placeholder="0.00" min="0" max="999999999" step="0.01">
               </div>
             </div>
             <div class="field">
               <label>State & Local Taxes (SALT)</label>
               <div class="prefix-wrap"><span>$</span>
-                <input type="number" id="salt" placeholder="0.00" min="0" step="0.01">
+                <input type="number" id="salt" placeholder="0.00" min="0" max="999999999" step="0.01">
               </div>
             </div>
           </div>
@@ -227,20 +227,20 @@
             <div class="field">
               <label>Charitable Contributions</label>
               <div class="prefix-wrap"><span>$</span>
-                <input type="number" id="charity" placeholder="0.00" min="0" step="0.01">
+                <input type="number" id="charity" placeholder="0.00" min="0" max="999999999" step="0.01">
               </div>
             </div>
             <div class="field">
               <label>Medical Expenses</label>
               <div class="prefix-wrap"><span>$</span>
-                <input type="number" id="medical" placeholder="0.00" min="0" step="0.01">
+                <input type="number" id="medical" placeholder="0.00" min="0" max="999999999" step="0.01">
               </div>
             </div>
           </div>
           <div class="field">
             <label>Other Itemized Deductions</label>
             <div class="prefix-wrap"><span>$</span>
-              <input type="number" id="otherDeductions" placeholder="0.00" min="0" step="0.01">
+              <input type="number" id="otherDeductions" placeholder="0.00" min="0" max="999999999" step="0.01">
             </div>
           </div>
         </div>
@@ -251,20 +251,20 @@
             <div class="field">
               <label>Student Loan Interest</label>
               <div class="prefix-wrap"><span>$</span>
-                <input type="number" id="studentLoan" placeholder="0.00" min="0" step="0.01">
+                <input type="number" id="studentLoan" placeholder="0.00" min="0" max="999999999" step="0.01">
               </div>
             </div>
             <div class="field">
               <label>IRA / 401(k) Contributions</label>
               <div class="prefix-wrap"><span>$</span>
-                <input type="number" id="ira" placeholder="0.00" min="0" step="0.01">
+                <input type="number" id="ira" placeholder="0.00" min="0" max="999999999" step="0.01">
               </div>
             </div>
           </div>
           <div class="field" style="margin-top:1rem;">
             <label>HSA Contributions</label>
             <div class="prefix-wrap"><span>$</span>
-              <input type="number" id="hsa" placeholder="0.00" min="0" step="0.01">
+              <input type="number" id="hsa" placeholder="0.00" min="0" max="999999999" step="0.01">
             </div>
           </div>
         </div>
@@ -334,7 +334,7 @@
         <div class="field">
           <label>Estimated Tax Payments Made</label>
           <div class="prefix-wrap"><span>$</span>
-            <input type="number" id="estimatedPayments" placeholder="0.00" min="0" step="0.01">
+            <input type="number" id="estimatedPayments" placeholder="0.00" min="0" max="999999999" step="0.01">
           </div>
           <span class="hint">Quarterly payments sent directly to the IRS during the year</span>
         </div>
