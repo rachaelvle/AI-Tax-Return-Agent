@@ -1,0 +1,370 @@
+<!-- This is the entry page to the site and it will ask for the user's information using 
+ a form with multiple screens. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tax Return Agent</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- Welcome Screen, just a get started button -->
+<div id="welcome">
+  <div class="welcome-slab"></div>
+  <div class="welcome-slab2"></div>
+  <div class="welcome-inner">
+    <div class="welcome-eyebrow">AI-Powered &nbsp;·&nbsp; Tax Year 2025</div>
+    <h1 class="welcome-title">Your <em>smartest</em><br>tax return yet.</h1>
+    <p class="welcome-sub">Answer a few simple questions and our AI agent will calculate your refund, identify deductions, and prepare your federal return — in minutes, not hours.</p>
+    <div class="welcome-features">
+      <div class="welcome-feat"><div class="feat-icon">⚡</div><div class="feat-label">Fast</div></div>
+      <div class="welcome-feat"><div class="feat-icon">🔒</div><div class="feat-label">Secure</div></div>
+      <div class="welcome-feat"><div class="feat-icon">🧠</div><div class="feat-label">AI-Guided</div></div>
+      <div class="welcome-feat"><div class="feat-icon">✦</div><div class="feat-label">Accurate</div></div>
+    </div>
+    <div class="welcome-divider"></div>
+    <div class="welcome-cta">
+      <button class="btn-start" onclick="startApp()"><span>Begin My Return &nbsp;→</span></button>
+      <span class="welcome-note">Takes about 5 minutes &nbsp;·&nbsp; No account required</span>
+    </div>
+  </div>
+  <div class="welcome-ticker">
+    <div class="ticker-track">
+      <span>Federal Return 2025</span><span class="highlight">✦</span>
+      <span>W-2 · 1099 · Self-Employment</span><span class="highlight">✦</span>
+      <span>Itemized & Standard Deductions</span><span class="highlight">✦</span>
+      <span>Child Tax Credit · EITC · EV Credits</span><span class="highlight">✦</span>
+      <span>Instant Refund Estimate</span><span class="highlight">✦</span>
+      <span>Federal Return 2025</span><span class="highlight">✦</span>
+      <span>W-2 · 1099 · Self-Employment</span><span class="highlight">✦</span>
+      <span>Itemized & Standard Deductions</span><span class="highlight">✦</span>
+      <span>Child Tax Credit · EITC · EV Credits</span><span class="highlight">✦</span>
+      <span>Instant Refund Estimate</span><span class="highlight">✦</span>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+<div class="shell">
+
+  <header class="header">
+    <span class="header-badge">AI</span>
+    <h1>Tax Return Agent</h1>
+    <span class="year">FY 2025</span>
+  </header>
+
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-seg active" id="seg0"></div>
+    <div class="progress-seg" id="seg1"></div>
+    <div class="progress-seg" id="seg2"></div>
+    <div class="progress-seg" id="seg3"></div>
+    <div class="progress-seg" id="seg4"></div>
+  </div>
+
+  <!-- Step 1: Filing Status: select one that applies -->
+  <div class="step active" id="step0">
+    <div class="step-label">Step 1 of 5</div>
+    <div class="card" data-step="01">
+      <h2>Filing Status</h2>
+      <p class="subtitle">Select the status that best describes your situation for tax year 2025</p>
+      <div class="field-group">
+        <div class="radio-grid" id="filingStatus">
+          <label class="radio-item selected">
+            <input type="radio" name="filing" value="single" checked>
+            <span class="radio-dot"></span>
+            <span class="radio-text">
+              <div class="radio-title">Single</div>
+              <div class="radio-desc">Unmarried or legally separated</div>
+            </span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="filing" value="mfj">
+            <span class="radio-dot"></span>
+            <span class="radio-text">
+              <div class="radio-title">Married Filing Jointly</div>
+              <div class="radio-desc">Married and filing one combined return</div>
+            </span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="filing" value="mfs">
+            <span class="radio-dot"></span>
+            <span class="radio-text">
+              <div class="radio-title">Married Filing Separately</div>
+              <div class="radio-desc">Married but filing seperate returns</div>
+            </span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="filing" value="hoh">
+            <span class="radio-dot"></span>
+            <span class="radio-text">
+              <div class="radio-title">Head of Household</div>
+              <div class="radio-desc">Unmarried with qualifying dependent</div>
+            </span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="filing" value="qss">
+            <span class="radio-dot"></span>
+            <span class="radio-text">
+              <div class="radio-title">Qualifying Surviving Spouse</div>
+              <div class="radio-desc">Recently widowed with dependent child</div>
+            </span>
+          </label>
+        </div>
+      </div>
+      <div class="nav">
+        <span></span>
+        <button class="btn btn-primary" onclick="next()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Income - user has to type in the amounts for their income sources-->
+  <div class="step" id="step1">
+    <div class="step-label">Step 2 of 5</div>
+    <div class="card" data-step="02">
+      <h2>Income Sources</h2>
+      <p class="subtitle">Enter all income received during tax year 2025. Leave blank if not applicable.</p>
+      <div class="field-group">
+        <div class="field">
+          <label>W-2 Wages & Salaries</label>
+          <div class="prefix-wrap">
+            <span>$</span>
+            <input type="number" id="wages" placeholder="0.00" min="0" step="0.01">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Self-Employment Income</label>
+            <div class="prefix-wrap"><span>$</span>
+              <input type="number" id="selfEmploy" placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+          <div class="field">
+            <label>Investment / Capital Gains</label>
+            <div class="prefix-wrap"><span>$</span>
+              <input type="number" id="capitalGains" placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Rental Income</label>
+            <div class="prefix-wrap"><span>$</span>
+              <input type="number" id="rental" placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+          <div class="field">
+            <label>Dividend / Interest Income</label>
+            <div class="prefix-wrap"><span>$</span>
+              <input type="number" id="dividend" placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Unemployment Benefits</label>
+            <div class="prefix-wrap"><span>$</span>
+              <input type="number" id="unemployment" placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+          <div class="field">
+            <label>Other Income</label>
+            <div class="prefix-wrap"><span>$</span>
+              <input type="number" id="otherIncome" placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Federal Tax Withheld (W-2 Box 2)</label>
+          <div class="prefix-wrap"><span>$</span>
+            <input type="number" id="withheld" placeholder="0.00" min="0" step="0.01">
+          </div>
+          <span class="hint">Total federal income tax already withheld from paychecks</span>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn btn-ghost" onclick="prev()">← Back</button>
+        <button class="btn btn-primary" onclick="next()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Deductions (the choice is to be standardized or more specific depending on the user's choice)-->
+  <div class="step" id="step2">
+    <div class="step-label">Step 3 of 5</div>
+    <div class="card" data-step="03">
+      <h2>Deductions</h2>
+      <p class="subtitle">We'll help you choose between standard and itemized deductions</p>
+      <div class="field-group">
+        <div class="field">
+          <label>Deduction Method</label>
+          <select id="deductionMethod" onchange="toggleItemized()">
+            <option value="standard">Standard Deduction (Recommended)</option>
+            <option value="itemized">Itemized Deductions</option>
+          </select>
+          <span class="hint" id="stdHint">Standard: $15,000 (Single) · $30,000 (MFJ) · $22,500 (HoH)</span>
+        </div>
+
+        <div id="itemizedFields" style="display:none; flex-direction:column; gap:1rem;">
+          <div class="field-row">
+            <div class="field">
+              <label>Mortgage Interest</label>
+              <div class="prefix-wrap"><span>$</span>
+                <input type="number" id="mortgage" placeholder="0.00" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="field">
+              <label>State & Local Taxes (SALT)</label>
+              <div class="prefix-wrap"><span>$</span>
+                <input type="number" id="salt" placeholder="0.00" min="0" step="0.01">
+              </div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Charitable Contributions</label>
+              <div class="prefix-wrap"><span>$</span>
+                <input type="number" id="charity" placeholder="0.00" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="field">
+              <label>Medical Expenses</label>
+              <div class="prefix-wrap"><span>$</span>
+                <input type="number" id="medical" placeholder="0.00" min="0" step="0.01">
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Other Itemized Deductions</label>
+            <div class="prefix-wrap"><span>$</span>
+              <input type="number" id="otherDeductions" placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border); padding-top: 1.25rem;">
+          <label class="step-label" style="display:block; margin-bottom:0.75rem;">Above-the-Line Adjustments</label>
+          <div class="field-row">
+            <div class="field">
+              <label>Student Loan Interest</label>
+              <div class="prefix-wrap"><span>$</span>
+                <input type="number" id="studentLoan" placeholder="0.00" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="field">
+              <label>IRA / 401(k) Contributions</label>
+              <div class="prefix-wrap"><span>$</span>
+                <input type="number" id="ira" placeholder="0.00" min="0" step="0.01">
+              </div>
+            </div>
+          </div>
+          <div class="field" style="margin-top:1rem;">
+            <label>HSA Contributions</label>
+            <div class="prefix-wrap"><span>$</span>
+              <input type="number" id="hsa" placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn btn-ghost" onclick="prev()">← Back</button>
+        <button class="btn btn-primary" onclick="next()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Credits & Dependents (can select multiple options)-->
+  <div class="step" id="step3">
+    <div class="step-label">Step 4 of 5</div>
+    <div class="card" data-step="04">
+      <h2>Credits & Dependents</h2>
+      <p class="subtitle">Tax credits directly reduce your tax bill — not to be confused with deductions</p>
+      <div class="field-group">
+        <div class="field">
+          <label>Number of Dependents</label>
+          <select id="dependents">
+            <option value="0">0 — No dependents</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5 or more</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Applicable Tax Credits</label>
+          <div class="checkbox-grid" id="creditsGrid">
+            <label class="checkbox-item" for="credit-childtax">
+              <input type="checkbox" id="credit-childtax" value="childtax">
+              <span class="tick"></span>
+              Child Tax Credit
+            </label>
+            <label class="checkbox-item" for="credit-childcare">
+              <input type="checkbox" id="credit-childcare" value="childcare">
+              <span class="tick"></span>
+              Child & Dependent Care
+            </label>
+            <label class="checkbox-item" for="credit-eitc">
+              <input type="checkbox" id="credit-eitc" value="eitc">
+              <span class="tick"></span>
+              Earned Income Credit
+            </label>
+            <label class="checkbox-item" for="credit-education">
+              <input type="checkbox" id="credit-education" value="education">
+              <span class="tick"></span>
+              Education Credits
+            </label>
+            <label class="checkbox-item" for="credit-savers">
+              <input type="checkbox" id="credit-savers" value="savers">
+              <span class="tick"></span>
+              Saver's Credit
+            </label>
+            <label class="checkbox-item" for="credit-ev">
+              <input type="checkbox" id="credit-ev" value="ev">
+              <span class="tick"></span>
+              EV / Clean Energy Credit
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Estimated Tax Payments Made</label>
+          <div class="prefix-wrap"><span>$</span>
+            <input type="number" id="estimatedPayments" placeholder="0.00" min="0" step="0.01">
+          </div>
+          <span class="hint">Quarterly payments sent directly to the IRS during the year</span>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn btn-ghost" onclick="prev()">← Back</button>
+        <button class="btn btn-primary" onclick="next()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5: Summary - for the user to review what they have entered  -->
+  <div class="step" id="step4">
+    <div class="step-label">Step 5 of 5</div>
+    <div class="card" data-step="05">
+      <h2>Your Summary</h2>
+      <p class="subtitle">Review your return details before submitting</p>
+      <div class="summary" id="summaryContent"></div>
+      <div id="resultBox"></div>
+      <div class="nav">
+        <button class="btn btn-ghost" onclick="prev()">← Edit</button>
+        <button class="btn btn-accent" onclick="submitReturn()">Submit Return ↗</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.shell -->
+</div><!-- /#app -->
+
+<!-- connect this html to the script to make sure that inputs are clean -->
+<script src="{{ url_for('static', filename='js/validation.js') }}"></script>
+</body>
+</html>

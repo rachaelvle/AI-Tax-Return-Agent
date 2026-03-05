@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Results — AI Tax Return Agent FY 2025</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="results-shell">
+  <!-- Header -->
+  <div class="results-header">
+    <div>
+      <div class="results-badge">AI Tax Return Agent · FY 2025</div>
+      <h1 class="results-title">Your Tax Summary</h1>
+    </div>
+    <div style="font-family:var(--mono,monospace); font-size:0.78rem; color:#888;">
+      {{ r.status_label }} &nbsp;·&nbsp; {{ r.dependents }} dependent{{ 's' if r.dependents != 1 else '' }}
+    </div>
+  </div>
+
+  <!-- Hero Result -->
+  <div class="result-hero {{ 'refund' if r.is_refund else 'balance' }}">
+    <div>
+      <div class="hero-label">{{ 'Estimated Federal Refund' if r.is_refund else 'Balance Due to IRS' }}</div>
+      <div class="hero-amount">${{ '{:,.2f}'.format(r.refund_or_owed | abs) }}</div>
+      <div class="hero-sub">Tax Year January 1 – December 31, 2025 &nbsp;·&nbsp; Estimated</div>
+    </div>
+    <div class="hero-rates">
+      <div class="hero-rate-item">Effective Rate <span>{{ r.effective_rate }}%</span></div>
+      <div class="hero-rate-item">Marginal Rate <span>{{ r.marginal_rate }}%</span></div>
+    </div>
+  </div>
+
+  <!-- Income Card -->
+  <div class="res-card">
+    <div class="res-card-head">01 &nbsp; Income</div>
+    <div class="res-rows">
+      {% for field, label in [
+        ('wages','W-2 Wages & Salaries'), ('selfEmploy','Self-Employment Income'),
+        ('capitalGains','Capital Gains'), ('rental','Rental Income'),
+        ('dividend','Dividends & Interest'), ('unemployment','Unemployment Benefits'),
+        ('otherIncome','Other Income')
+      ] %}
+        {% if d.income[field] > 0 %}
+        <div class="res-row">
+          <span class="lbl">{{ label }}</span>
+          <span class="amt">${{ '{:,.2f}'.format(d.income[field]) }}</span>
+        </div>
+        {% endif %}
+      {% endfor %}
+      <div class="res-row subtotal">
+        <span class="lbl">Gross Income</span>
+        <span class="amt">${{ '{:,.2f}'.format(r.gross_income) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Adjustments Card -->
+  <div class="res-card">
+    <div class="res-card-head">02 &nbsp; Adjustments to Income</div>
+    <div class="res-rows">
+      {% if d.adjustments.studentLoan > 0 %}
+      <div class="res-row">
+        <span class="lbl">Student Loan Interest</span>
+        <span class="amt deduct">− ${{ '{:,.2f}'.format(d.adjustments.studentLoan) }}</span>
+      </div>
+      {% endif %}
+      {% if d.adjustments.ira > 0 %}
+      <div class="res-row">
+        <span class="lbl">IRA / 401(k) Contributions</span>
+        <span class="amt deduct">− ${{ '{:,.2f}'.format(d.adjustments.ira) }}</span>
+      </div>
+      {% endif %}
+      {% if d.adjustments.hsa > 0 %}
+      <div class="res-row">
+        <span class="lbl">HSA Contributions</span>
+        <span class="amt deduct">− ${{ '{:,.2f}'.format(d.adjustments.hsa) }}</span>
+      </div>
+      {% endif %}
+      {% if r.se_deduction > 0 %}
+      <div class="res-row">
+        <span class="lbl">Deductible Part of Self-Employment Tax</span>
+        <span class="amt deduct">− ${{ '{:,.2f}'.format(r.se_deduction) }}</span>
+      </div>
+      {% endif %}
+      <div class="res-row subtotal">
+        <span class="lbl">Adjusted Gross Income (AGI)</span>
+        <span class="amt">${{ '{:,.2f}'.format(r.agi) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deductions Card -->
+  <div class="res-card">
+    <div class="res-card-head">03 &nbsp; Deductions</div>
+    <div class="res-rows">
+      <div class="res-row">
+        <span class="lbl">{{ r.deduction_label }} Deduction</span>
+        <span class="amt deduct">− ${{ '{:,.2f}'.format(r.deduction_used) }}</span>
+      </div>
+      {% if d.deduction_method == 'itemized' and r.itemized_total > 0 %}
+        {% for field, lbl in [('mortgage','Mortgage Interest'),('salt','SALT (capped $10k)'),
+          ('charity','Charitable Contributions'),('medical','Medical Expenses'),
+          ('otherDeductions','Other Itemized')] %}
+          {% if d.itemized[field] > 0 %}
+          <div class="res-row res-indent">
+            <span class="lbl">└ {{ lbl }}</span>
+            <span class="amt" style="color:#aaa;">${{ '{:,.2f}'.format(d.itemized[field]) }}</span>
+          </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      <div class="res-row subtotal">
+        <span class="lbl">Taxable Income</span>
+        <span class="amt">${{ '{:,.2f}'.format(r.taxable_income) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tax & Credits Card -->
+  <div class="res-card">
+    <div class="res-card-head">04 &nbsp; Tax & Credits</div>
+    <div class="res-rows">
+      <div class="res-row">
+        <span class="lbl">Federal Income Tax (2025 Brackets)</span>
+        <span class="amt">${{ '{:,.2f}'.format(r.income_tax) }}</span>
+      </div>
+      {% if r.se_tax > 0 %}
+      <div class="res-row">
+        <span class="lbl">Self-Employment Tax</span>
+        <span class="amt">${{ '{:,.2f}'.format(r.se_tax) }}</span>
+      </div>
+      {% endif %}
+      {% for credit in d.credits_selected %}
+        {% set amt = r.credit_detail.get(credit, 0) %}
+        {% if amt > 0 %}
+        <div class="res-row">
+          <span class="lbl">Credit: {{ {'childtax':'Child Tax Credit','childcare':'Child & Dependent Care',
+            'eitc':'Earned Income Credit','education':'Education Credits',
+            'savers':"Saver's Credit",'ev':'EV / Clean Energy Credit'}[credit] }}</span>
+          <span class="amt credit">− ${{ '{:,.2f}'.format(amt) }}</span>
+        </div>
+        {% endif %}
+      {% endfor %}
+      <div class="res-row subtotal">
+        <span class="lbl">Total Tax Liability</span>
+        <span class="amt">${{ '{:,.2f}'.format(r.total_tax_liability) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payments Card -->
+  <div class="res-card">
+    <div class="res-card-head">05 &nbsp; Payments</div>
+    <div class="res-rows">
+      {% if d.withheld > 0 %}
+      <div class="res-row">
+        <span class="lbl">Federal Tax Withheld (W-2)</span>
+        <span class="amt credit">${{ '{:,.2f}'.format(d.withheld) }}</span>
+      </div>
+      {% endif %}
+      {% if d.estimated_payments > 0 %}
+      <div class="res-row">
+        <span class="lbl">Estimated Tax Payments</span>
+        <span class="amt credit">${{ '{:,.2f}'.format(d.estimated_payments) }}</span>
+      </div>
+      {% endif %}
+      <div class="res-row total">
+        <span class="lbl">{{ 'Estimated Refund' if r.is_refund else 'Balance Due' }}</span>
+        <span class="amt">${{ '{:,.2f}'.format(r.refund_or_owed | abs) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="results-actions">
+    <a href="/download-pdf" class="btn-dl" download="Form1040_FY2025_Estimated.pdf">
+      ↓ &nbsp; Download Form 1040 (PDF)
+    </a>
+    <a href="/view-pdf" class="btn-view" target="_blank" rel="noopener">
+      ⊞ &nbsp; View PDF in Browser
+    </a>
+    <a href="/" class="btn-restart">
+      ← &nbsp; Start New Return
+    </a>
+  </div>
+
+  <!-- PDF Preview Panel (inline) -->
+  <div class="pdf-preview-wrap" id="pdfPreviewWrap" style="display:none;">
+    <div class="pdf-preview-header">
+      <span>Form 1040 Preview</span>
+      <button class="pdf-preview-close" onclick="document.getElementById('pdfPreviewWrap').style.display='none'">✕ Close</button>
+    </div>
+    <iframe id="pdfFrame" src="" width="100%" height="700px" style="border:none; border-radius:0 0 8px 8px;"></iframe>
+  </div>
+
+  <script>
+    // Intercept "View PDF" to show inline preview instead of new tab (optional UX enhancement)
+    document.querySelector('.btn-view').addEventListener('click', function(e) {
+      e.preventDefault();
+      const wrap = document.getElementById('pdfPreviewWrap');
+      const frame = document.getElementById('pdfFrame');
+      if (wrap.style.display === 'none') {
+        frame.src = '/view-pdf';
+        wrap.style.display = 'block';
+        wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        wrap.style.display = 'none';
+        frame.src = '';
+      }
+    });
+  </script>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer-box">
+    <strong>⚠ Educational / Estimated Use Only:</strong> This tool provides an estimate for informational purposes
+    and does <strong>not</strong> constitute an official IRS filing or tax advice. Tax calculations are
+    simplified. Consult a licensed tax professional or use IRS-approved software to file your actual return.
+    Do not submit this output to the IRS.
+  </div>
+
+</div>
+
+</body>
+</html>
